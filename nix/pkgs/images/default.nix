@@ -66,10 +66,6 @@ let
       mkdir -p var/tmp
     '';
   };
-  mayastorIscsiadm = writeScriptBin "mayastor-iscsiadm" ''
-    #!${stdenv.shell}
-    chroot /host /usr/bin/env -i PATH="/sbin:/bin:/usr/bin" iscsiadm "$@"
-  '';
 
   mctl = writeScriptBin "mctl" ''
     /bin/mayastor-client "$@"
@@ -91,13 +87,13 @@ in
   # big layer with everything else. That defeats the purpose of layering.
   mayastor-csi = dockerTools.buildLayeredImage (mayastorCsiImageProps // {
     name = "mayadata/mayastor-csi";
-    contents = [ busybox mayastor mayastorIscsiadm ];
+    contents = [ busybox mayastor ];
     maxLayers = 42;
   });
 
   mayastor-csi-dev = dockerTools.buildImage (mayastorCsiImageProps // {
     name = "mayadata/mayastor-csi-dev";
-    contents = [ busybox mayastor-dev mayastorIscsiadm ];
+    contents = [ busybox mayastor-dev ];
   });
 
   mayastor-client = dockerTools.buildImage (clientImageProps // {
